@@ -14,7 +14,7 @@ local Player = {
     jumpTime = 0,
     maxJumpTime = 0.2,  -- Slightly reduced max jump time
     minJumpVelocity = -150,  -- Adjusted for smoother minimum jumps
-    gravity = 2000,  -- Increased from 1500 for snappier falls
+    gravity = 2300,  -- Increased from 1700 for snappier falls
     maxFallSpeed = 800,
     grounded = false,
     jumping = false,
@@ -50,10 +50,18 @@ function Player:update(dt)
         self.facingRight = true
     else
         -- Apply deceleration when no movement keys are pressed
+        -- Use a modified deceleration rate in air to maintain some momentum
+        local currentDeceleration = self.deceleration
+        if not self.grounded then
+            currentDeceleration = self.deceleration * 0.6  -- Slightly increased from 0.5 for slightly faster air deceleration
+        else
+            currentDeceleration = self.deceleration * 1.5  -- 50% faster ground deceleration
+        end
+        
         if self.velocityX > 0 then
-            self.velocityX = math.max(0, self.velocityX - self.deceleration * dt)
+            self.velocityX = math.max(0, self.velocityX - currentDeceleration * dt)
         elseif self.velocityX < 0 then
-            self.velocityX = math.min(0, self.velocityX + self.deceleration * dt)
+            self.velocityX = math.min(0, self.velocityX + currentDeceleration * dt)
         end
     end
 
