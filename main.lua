@@ -13,7 +13,7 @@ local gameState = {
     camera = {
         x = 0,
         y = 0,
-        scale = 1
+        scale = 2  -- Scale factor for 32x32 visual size while maintaining 16x16 logical size
     }
 }
 
@@ -22,19 +22,19 @@ function love.load()
     -- Initialize game components
     gameState.player = Player.new(100, 100)  -- Starting position
     
-    -- Create some test platforms
+    -- Create some test platforms aligned to 16x16 grid
     table.insert(gameState.platforms, {
-        x = 100,
-        y = 400,
-        width = 200,
-        height = 32
+        x = 96,  -- 6 * 16
+        y = 400, -- 25 * 16
+        width = 192, -- 12 * 16
+        height = 16
     })
     
     table.insert(gameState.platforms, {
-        x = 400,
-        y = 300,
-        width = 200,
-        height = 32
+        x = 384, -- 24 * 16
+        y = 304, -- 19 * 16
+        width = 192, -- 12 * 16
+        height = 16
     })
     
     -- Set up window
@@ -61,16 +61,18 @@ function love.update(dt)
     -- Update camera to follow player
     if gameState.player then
         -- Simple camera following
-        gameState.camera.x = gameState.player.x - love.graphics.getWidth() / 2
-        gameState.camera.y = gameState.player.y - love.graphics.getHeight() / 2
+        -- Adjust camera position accounting for scale
+        gameState.camera.x = (gameState.player.x * gameState.camera.scale) - love.graphics.getWidth() / 2
+        gameState.camera.y = (gameState.player.y * gameState.camera.scale) - love.graphics.getHeight() / 2
     end
 end
 
 -- LÖVE2D callback: Called every frame after update
 function love.draw()
-    -- Apply camera transform
+    -- Apply camera transform with scaling
     love.graphics.push()
-    love.graphics.translate(-gameState.camera.x, -gameState.camera.y)
+    love.graphics.scale(gameState.camera.scale)
+    love.graphics.translate(-gameState.camera.x / gameState.camera.scale, -gameState.camera.y / gameState.camera.scale)
     
     -- Draw game world
     if gameState.player then
