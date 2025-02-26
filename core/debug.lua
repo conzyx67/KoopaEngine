@@ -56,6 +56,17 @@ function Debug.draw(gameState)
     love.graphics.translate(-gameState.camera.x, -gameState.camera.y)
     love.graphics.setColor(unpack(Debug.gridColor))
     drawGrid(gameState)
+    
+    -- Draw deadzone
+    if gameState.camera.deadzone then
+        love.graphics.setColor(0, 0, 1, 0.3) -- Semi-transparent blue
+        love.graphics.rectangle('fill',
+            gameState.camera.deadzone.left,
+            gameState.camera.deadzone.top,
+            gameState.camera.deadzone.right - gameState.camera.deadzone.left,
+            gameState.camera.deadzone.bottom - gameState.camera.deadzone.top
+        )
+    end
     love.graphics.pop()
     
     -- Draw debug background

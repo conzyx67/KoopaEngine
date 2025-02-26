@@ -5,35 +5,38 @@ local Player = require('core.player')
 local Collision = require('core.collision')
 local Debug = require('core.debug')
 
+-- Load required modules
+local Camera = require('core.camera')
+
 -- Game state variables
 local gameState = {
     player = nil,
     platforms = {},
     world = nil,
-    camera = {
-        x = 0,
-        y = 0,
-        scale = 2  -- Scale factor for 32x32 visual size while maintaining 16x16 logical size
-    }
+    camera = nil
 }
 
 -- LÖVE2D callback: Called once at startup
 function love.load()
     -- Initialize game components
     gameState.player = Player.new(100, 100)  -- Starting position
+    gameState.camera = Camera.new(2)  -- Initialize camera with 2x scale
+    
+    -- Set camera bounds based on level size (adjust these values based on your level)
+    gameState.camera:setBounds(0, 800, 0, 600)
     
     -- Create some test platforms aligned to 16x16 grid
     table.insert(gameState.platforms, {
         x = 96,  -- 6 * 16
         y = 400, -- 25 * 16
-        width = 192, -- 12 * 16
+        width = 320, -- 20 * 16
         height = 16
     })
     
     table.insert(gameState.platforms, {
         x = 384, -- 24 * 16
         y = 304, -- 19 * 16
-        width = 192, -- 12 * 16
+        width = 320, -- 20 * 16
         height = 16
     })
     
@@ -60,19 +63,14 @@ function love.update(dt)
     
     -- Update camera to follow player
     if gameState.player then
-        -- Simple camera following
-        -- Adjust camera position accounting for scale
-        gameState.camera.x = (gameState.player.x * gameState.camera.scale) - love.graphics.getWidth() / 2
-        gameState.camera.y = (gameState.player.y * gameState.camera.scale) - love.graphics.getHeight() / 2
+        gameState.camera:update(gameState.player)
     end
 end
 
 -- LÖVE2D callback: Called every frame after update
 function love.draw()
-    -- Apply camera transform with scaling
-    love.graphics.push()
-    love.graphics.scale(gameState.camera.scale)
-    love.graphics.translate(-gameState.camera.x / gameState.camera.scale, -gameState.camera.y / gameState.camera.scale)
+    -- Apply camera transform
+    gameState.camera:apply()
     
     -- Draw game world
     if gameState.player then
